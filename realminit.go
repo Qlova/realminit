@@ -5,53 +5,123 @@ package main
 import "encoding/csv"
 import "os"
 import "fmt"
+import "strings"
 
 func main() {
 	if len(os.Args) <= 1 {
 		fmt.Println("Usage: realminit input.csv output.js")
 	}
-	
+
 	if len(os.Args) > 1 {
 		var output_name = "output.js"
 		if len(os.Args) > 2 {
 			output_name = os.Args[2]
 		}
-		
+
 		fmt.Println(os.Args[1])
-		
+
 		file, err := os.Open(os.Args[1])
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		
+
 		reader := csv.NewReader(file)
 		output, err := os.Create(output_name)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		
+
 	output.Write([]byte(`
+		const sightingSchema = {
+		  name: 'Sighting',
+		  properties: {
+		    treeName:  'string',
+		    location: 'string',
+		    address: 'string',
+		    picture: 'string',
+		    notes: 'string',
+		    date: 'string',
+		     key: {type: 'int', default: 0},
+		  }
+		};
+
+		const treeSchema = {
+			name: 'TreeInfo',
+		    primaryKey: 'id',
+		    properties: {
+		    
+		    id: 'int',
+		    commonName:  'string',
+		    maoriName:  'string',
+		    latinName:  'string',
+		    synonyms:  'string',
+		    thumbnail:  'string',
+		    image2:  'string',
+		    image3:  'string',
+		    image4:  'string',
+			image5:  'string',
+			image6:  'string',
+			
+		    favourites:  {type: 'int', default: 0},
+
+		    favouritesColour:  'string',
+		    family: 'string',
+		    group: 'string',
+		    medicinal: {type: 'int', default: 0},
+		    medicinalInfo: 'string',
+		    fruiting: 'string',
+		    poisonous: {type: 'int', default: 0},
+		    poisonousInfo: 'string',
+		    flowering: 'string',
+		    speciesFeatures: 'string',
+		    description: 'string',
+		    didYouKnow: 'string',
+		    distribution: 'string',
+		    etymology: 'string',
+		    leafEdges: 'string',
+		    leafType: 'string',
+		    leafMarginSpecialty: 'string',
+		    leafSurfaceSpecialty: 'string',
+		    leafArrangement: 'string',
+		    leafShape: 'string',
+		    leafTip: 'string',
+		    flowerColour: 'string',
+		    fruitColour: 'string',
+		    fruitType: 'string',
+		    trunk: 'string',
+		    trunkColor: 'string',
+		    sightings: {type: 'list', objectType: 'Sighting'},
+		  }
+		};
+
+		export function populate() {
 	Realm.open({schema: [sightingSchema, treeSchema]})
 
     .then(realm => {
+
+			      realm.write(() => {
 `))
-		
-		
+
+
 		var record []string
 		var first bool = true
 		for record, err = reader.Read(); err == nil; record, err = reader.Read() {
-				
+
 				if first {
 					first = false
 					continue
 				}
-			
-				output.Write([]byte(`
-      realm.write(() => {
 
-        const CabbageTree = realm.create('TreeInfo', {
+				for i, r := range record {
+					r = strings.Replace(r, "\n","\\n", -1);
+					r = strings.Replace(r, "\r","\\r", -1);
+					record[i] = strings.Replace(r, "'","\\'", -1);
+				}
+
+				output.Write([]byte(`
+        realm.create('TreeInfo', {
 
           id: `+record[0]+`,
 
@@ -65,75 +135,81 @@ func main() {
 
           thumbnail:  '`+record[5]+`',
 
-          image:  '`+record[6]+`',
+          image2:  '`+record[6]+`',
+		  
+		  image3:  '`+record[7]+`',
 
-          image2:  '`+record[7]+`',
+          image4:  '`+record[8]+`',
+		  
+		  image5:  '`+record[9]+`',
 
-          favourites:   `+record[8]+`,
+          image6:  '`+record[10]+`',
 
-          favouritesColour:  '`+record[9]+`',
+          favourites:   `+record[11]+`,
 
-          family: '`+record[10]+`',
+          favouritesColour:  '`+record[12]+`',
 
-          group: '`+record[11]+`',
+          family: '`+record[13]+`',
 
-          medicinal: `+record[12]+`,
+          group: '`+record[14]+`',
 
-          medicinalInfo: '`+record[13]+`',
+          medicinal: `+record[15]+`,
 
-          fruiting: '`+record[14]+`',
+          medicinalInfo: '`+record[16]+`',
 
-          poisonous: `+record[15]+`,
+          fruiting: '`+record[17]+`',
 
-          poisonousInfo: '`+record[16]+`',
+          poisonous: `+record[18]+`,
 
-          flowering: '`+record[17]+`',
+          poisonousInfo: '`+record[19]+`',
 
-          speciesFeatures: '`+record[18]+`',
+          flowering: '`+record[20]+`',
 
-          description: '`+record[19]+`',
+          speciesFeatures: '`+record[21]+`',
 
-          didYouKnow: '`+record[20]+`',
+          description: '`+record[22]+`',
 
-          distribution: '`+record[21]+`',
+          didYouKnow: '`+record[23]+`',
 
-          etymology: '`+record[22]+`',
+          distribution: '`+record[24]+`',
 
-          leafEdges: '`+record[23]+`',
+          etymology: '`+record[25]+`',
 
-          leafType: '`+record[24]+`',
+          leafEdges: '`+record[26]+`',
 
-          leafMarginSpecialty: '`+record[25]+`',
+          leafType: '`+record[27]+`',
 
-          leafSurfaceSpecialty: '`+record[26]+`',
+          leafMarginSpecialty: '`+record[28]+`',
 
-          leafArrangement: '`+record[27]+`',
+          leafSurfaceSpecialty: '`+record[29]+`',
 
-          leafShape: '`+record[28]+`',
+          leafArrangement: '`+record[30]+`',
 
-          leafTip: '`+record[29]+`',
+          leafShape: '`+record[31]+`',
 
-          flowerColour: '`+record[30]+`',
+          leafTip: '`+record[32]+`',
 
-          fruitColour: '`+record[31]+`',
+          flowerColour: '`+record[33]+`',
 
-          fruitType: '`+record[32]+`',
+          fruitColour: '`+record[34]+`',
 
-          trunk: '`+record[33]+`',
+          fruitType: '`+record[35]+`',
 
-          trunkColor: '`+record[34]+`',
+          trunk: '`+record[36]+`',
+
+          trunkColor: '`+record[37]+`',
 
         });
 
-      });
-
 				`))
 		}
-		
+
 		output.Write([]byte(`
     });
+		});
+	}
 		`))
-		
+
 		if fmt.Sprint(err) != "EOF" {
 			fmt.Print("[ERROR] ")
 			fmt.Println(err)
